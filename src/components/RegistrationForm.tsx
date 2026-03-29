@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { Loader2, UploadCloud, FileImage, FileVideo, X, CheckCircle } from "lucide-react"
+import { Loader2, UploadCloud, FileImage, FileVideo, X, CheckCircle, Calendar } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "../lib/utils"
 import { fetchProductDescription } from "../lib/google-sheets"
@@ -14,15 +14,15 @@ const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/web
 const ACCEPTED_VIDEO_TYPES = ["video/mp4", "video/webm"]
 
 const formSchema = z.object({
-  product_code: z.string().min(1, "Código do produto é obrigatório"),
-  description: z.string().min(1, "Descrição é obrigatória"),
-  condition: z.string().min(1, "Condição é obrigatória"),
+  product_code: z.string().optional(),
+  description: z.string().optional(),
+  condition: z.string().optional(),
   custom_condition: z.string().optional(),
   lot: z.string().optional(),
-  brand: z.string().min(1, "Marca é obrigatória"),
+  brand: z.string().optional(),
   custom_brand: z.string().optional(),
-  date: z.string().min(1, "Data é obrigatória"),
-  quantity: z.coerce.number().min(1, "Quantidade deve ser pelo menos 1"),
+  date: z.string().optional(),
+  quantity: z.coerce.number().min(1, "Quantidade deve ser pelo menos 1").default(1),
 })
 
 export function RegistrationForm({ editId }: { editId?: string }) {
@@ -158,13 +158,13 @@ export function RegistrationForm({ editId }: { editId?: string }) {
 
       // 2. Insert or Update database
       const payload = {
-        product_code: data.product_code,
-        product_description: data.description,
-        condition: finalCondition,
+        product_code: data.product_code || null,
+        product_description: data.description || null,
+        condition: finalCondition || null,
         lot: data.lot || null,
-        brand: finalBrand,
-        quantity: data.quantity,
-        date: data.date,
+        brand: finalBrand || null,
+        quantity: data.quantity || 1,
+        date: data.date || new Date().toISOString().split('T')[0],
       }
 
       if (editId) {
@@ -214,7 +214,7 @@ export function RegistrationForm({ editId }: { editId?: string }) {
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-            Código do Produto <span className="text-destructive">*</span>
+            Código do Produto
           </label>
           <div className="relative">
             <input
@@ -251,7 +251,7 @@ export function RegistrationForm({ editId }: { editId?: string }) {
         {/* Quantity */}
         <div className="space-y-2">
           <label className="text-sm font-medium leading-none">
-            Quantidade <span className="text-destructive">*</span>
+            Quantidade
           </label>
           <input
             type="number"
@@ -264,14 +264,20 @@ export function RegistrationForm({ editId }: { editId?: string }) {
 
         {/* Date */}
         <div className="space-y-2">
-          <label className="text-sm font-medium leading-none">
-            Data do Registro <span className="text-destructive">*</span>
-          </label>
-          <input
-            type="date"
-            {...register("date")}
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-          />
+          <label className="text-sm font-medium leading-none">Data do Registro</label>
+          <div className="relative group cursor-pointer" onClick={(e) => {
+            const input = e.currentTarget.querySelector('input')
+            if (input && (input as any).showPicker) (input as any).showPicker()
+          }}>
+            <input
+              type="date"
+              {...register("date")}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pr-10 hover:border-primary/50 transition-colors cursor-pointer"
+            />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-primary group-hover:scale-110 transition-transform">
+              <Calendar className="h-5 w-5" />
+            </div>
+          </div>
           {errors.date && <p className="text-[0.8rem] font-medium text-destructive">{errors.date.message}</p>}
         </div>
 
