@@ -15,6 +15,7 @@ const ACCEPTED_VIDEO_TYPES = ["video/mp4", "video/webm"]
 
 const formSchema = z.object({
   product_code: z.string().min(1, "Código do produto é obrigatório"),
+  description: z.string().min(1, "Descrição é obrigatória"),
   condition: z.string().min(1, "Condição é obrigatória"),
   custom_condition: z.string().optional(),
   lot: z.string().optional(),
@@ -27,7 +28,6 @@ const formSchema = z.object({
 export function RegistrationForm({ editId }: { editId?: string }) {
   const navigate = useNavigate()
   const [isFetchingDesc, setIsFetchingDesc] = useState(false)
-  const [description, setDescription] = useState("")
   const [files, setFiles] = useState<File[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -51,12 +51,29 @@ export function RegistrationForm({ editId }: { editId?: string }) {
   const brandVal = watch("brand")
   const codeVal = watch("product_code")
 
+  // Auto fetch description
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (codeVal && codeVal.length >= 3 && !editId) {
+        setIsFetchingDesc(true)
+        const desc = await fetchProductDescription(codeVal)
+        if (desc) {
+          setValue("description", desc)
+        }
+        setIsFetchingDesc(false)
+      }
+    }, 600) // Debounce 600ms
+
+    return () => clearTimeout(timer)
+  }, [codeVal, editId, setValue])
+
   useEffect(() => {
     if (editId) {
       const load = async () => {
         const { data } = await supabase.from('descartes').select('*').eq('id', editId).single()
         if (data) {
           setValue("product_code", data.product_code)
+          setValue("description", data.product_description)
           setValue("quantity", data.quantity)
           setValue("date", data.date)
           setValue("lot", data.lot || '')
@@ -75,26 +92,12 @@ export function RegistrationForm({ editId }: { editId?: string }) {
             setValue("custom_brand", data.brand)
           }
 
-          setDescription(data.product_description)
+          setValue("description", data.product_description)
         }
       }
       load()
     }
   }, [editId, setValue])
-
-  const handleFetchDescription = async () => {
-    if (!codeVal) return
-    setIsFetchingDesc(true)
-    const desc = await fetchProductDescription(codeVal)
-    if (desc) {
-      setDescription(desc)
-      toast.success("Descrição encontrada com sucesso!")
-    } else {
-      setDescription("Nenhuma descrição encontrada para este código.")
-      toast.error("Código não encontrado na planilha de Estoque.")
-    }
-    setIsFetchingDesc(false)
-  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -121,11 +124,6 @@ export function RegistrationForm({ editId }: { editId?: string }) {
   }
 
   const onSubmit = async (data: any) => {
-    if (!description || description === "Nenhuma descrição encontrada para este código.") {
-      toast.error("Por favor, valide um código de produto que exista na planilha.")
-      return
-    }
-
     if (!editId && files.length === 0) {
       toast.error("Por favor, envie pelo menos uma foto ou vídeo evidenciando o problema.")
       return
@@ -161,7 +159,7 @@ export function RegistrationForm({ editId }: { editId?: string }) {
       // 2. Insert or Update database
       const payload = {
         product_code: data.product_code,
-        product_description: description,
+        product_description: data.description,
         condition: finalCondition,
         lot: data.lot || null,
         brand: finalBrand,
@@ -218,33 +216,34 @@ export function RegistrationForm({ editId }: { editId?: string }) {
           <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
             Código do Produto <span className="text-destructive">*</span>
           </label>
-          <div className="flex gap-2">
+          <div className="relative">
             <input
               {...register("product_code")}
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              placeholder="Ex: PROD-123"
+              placeholder="Ex: 2057"
             />
-            <button
-              type="button"
-              onClick={handleFetchDescription}
-              disabled={isFetchingDesc || !codeVal}
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2"
-            >
-              {isFetchingDesc ? <Loader2 className="h-4 w-4 animate-spin" /> : "Buscar"}
-            </button>
+            {isFetchingDesc && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              </div>
+            )}
           </div>
           {errors.product_code && <p className="text-[0.8rem] font-medium text-destructive">{errors.product_code.message}</p>}
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium leading-none">Descrição (Automática)</label>
-          <div className={cn(
-            "flex min-h-[40px] w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm text-muted-foreground",
-            description && description !== "Nenhuma descrição encontrada para este código." && "text-foreground bg-primary/5 border-primary/20",
-            description === "Nenhuma descrição encontrada para este código." && "text-destructive bg-destructive/5 border-destructive/20"
-          )}>
-            {description || "Aguardando busca..."}
+          <label className="text-sm font-medium leading-none">Descrição (Automática/Manual)</label>
+          <div className="relative">
+            <input
+              {...register("description")}
+              placeholder="Descrição do produto..."
+              className={cn(
+                "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                !watch("description") && "bg-muted/30"
+              )}
+            />
           </div>
+          {errors.description && <p className="text-[0.8rem] font-medium text-destructive">{errors.description.message}</p>}
         </div>
       </div>
 
