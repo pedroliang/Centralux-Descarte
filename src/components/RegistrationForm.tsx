@@ -124,11 +124,6 @@ export function RegistrationForm({ editId }: { editId?: string }) {
   }
 
   const onSubmit = async (data: any) => {
-    if (!editId && files.length === 0) {
-      toast.error("Por favor, envie pelo menos uma foto ou vídeo evidenciando o problema.")
-      return
-    }
-
     setIsSubmitting(true)
 
     const finalCondition = data.condition === "Outros" ? data.custom_condition || "Não especificado" : data.condition
