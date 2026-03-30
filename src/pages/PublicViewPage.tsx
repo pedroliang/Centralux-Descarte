@@ -30,12 +30,6 @@ export function PublicViewPage() {
       setLoading(true)
       let query = supabase.from('descartes').select('*').order('created_at', { ascending: false })
       
-      if (searchTerm) {
-        const words = searchTerm.split(' ').filter(w => w.trim().length > 0)
-        words.forEach(word => {
-          query = query.or(`product_code.ilike.%${word}%,brand.ilike.%${word}%,lot.ilike.%${word}%,condition.ilike.%${word}%,product_description.ilike.%${word}%,customer_name.ilike.%${word}%`)
-        })
-      }
       if (startDate) {
         query = query.gte('date', startDate)
       }
@@ -48,9 +42,26 @@ export function PublicViewPage() {
       setLoading(false)
     }
     fetchDiscards()
-  }, [searchTerm, startDate, endDate])
+  }, [startDate, endDate])
 
   const isVideo = (url: string) => /\.(mp4|webm)$/i.test(url.split('?')[0])
+
+  const filteredDiscards = discards.filter(discard => {
+    if (!searchTerm) return true
+    const searchString = [
+      discard.product_code,
+      discard.brand,
+      discard.lot || '',
+      discard.condition,
+      discard.product_description,
+      discard.customer_name || '',
+      discard.quantity.toString(),
+      discard.date ? format(new Date(discard.date + 'T00:00:00'), 'dd/MM/yyyy') : ''
+    ].join(' ').toLowerCase()
+    
+    const searchWords = searchTerm.toLowerCase().split(' ').filter(w => w.trim().length > 0)
+    return searchWords.every(word => searchString.includes(word))
+  })
 
   return (
     <div className="space-y-6">
@@ -94,13 +105,13 @@ export function PublicViewPage() {
         <div className="flex justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
-      ) : discards.length === 0 ? (
+      ) : filteredDiscards.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground bg-muted/20 rounded-xl border">
           Nenhum registro encontrado.
         </div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {discards.map(discard => (
+          {filteredDiscards.map(discard => (
             <div key={discard.id} className="bg-card text-card-foreground rounded-2xl border shadow-sm overflow-hidden flex flex-col transition-all hover:shadow-md">
               <div className="p-5 flex-1">
                 <div className="flex justify-between items-start mb-2">
