@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { Loader2, UploadCloud, FileImage, FileVideo, X, CheckCircle, Calendar } from "lucide-react"
+import { Loader2, UploadCloud, FileImage, FileVideo, X, CheckCircle, Calendar, Camera } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "../lib/utils"
 import { fetchProductDescription } from "../lib/google-sheets"
@@ -356,6 +356,19 @@ export function RegistrationForm({ editId }: { editId?: string }) {
               className="hidden" 
               multiple 
               accept="image/*,video/*"
+              onChange={handleFileChange}
+            />
+          </label>
+
+          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-muted-foreground/25 rounded-xl hover:bg-muted/50 hover:border-muted-foreground/50 transition-colors cursor-pointer text-muted-foreground hover:text-foreground">
+            <Camera className="h-8 w-8 mb-2" />
+            <span className="text-sm font-medium">Câmera</span>
+            <span className="text-xs mt-1">Tirar Foto ou Gravar</span>
+            <input 
+              type="file" 
+              className="hidden" 
+              accept="image/*,video/*"
+              capture="environment"
               onChange={handleFileChange}
             />
           </label>
