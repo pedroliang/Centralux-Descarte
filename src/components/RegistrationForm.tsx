@@ -33,6 +33,7 @@ export function RegistrationForm({ editId }: { editId?: string }) {
   const [files, setFiles] = useState<File[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isCameraOpen, setIsCameraOpen] = useState(false)
+  const [existingClients, setExistingClients] = useState<string[]>([])
 
   const {
     register,
@@ -102,6 +103,15 @@ export function RegistrationForm({ editId }: { editId?: string }) {
       }
       load()
     }
+
+    const fetchClients = async () => {
+      const { data } = await supabase.from('descartes').select('customer_name')
+      if (data) {
+        const names = Array.from(new Set(data.map(d => d.customer_name).filter(Boolean))) as string[]
+        setExistingClients(names)
+      }
+    }
+    fetchClients()
   }, [editId, setValue])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -251,9 +261,15 @@ export function RegistrationForm({ editId }: { editId?: string }) {
           <label className="text-sm font-medium leading-none">Nome do Cliente <span className="text-muted-foreground font-normal">(Opcional)</span></label>
           <input
             {...register("customer_name")}
+            list="client-suggestions"
             placeholder="Ex: João da Silva"
             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           />
+          <datalist id="client-suggestions">
+            {existingClients.map(name => (
+              <option key={name} value={name} />
+            ))}
+          </datalist>
         </div>
       </div>
 
