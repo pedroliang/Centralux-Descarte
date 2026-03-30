@@ -8,6 +8,7 @@ import { cn } from "../lib/utils"
 import { fetchProductDescription } from "../lib/google-sheets"
 import { supabase } from "../lib/supabase"
 import { useNavigate } from "react-router-dom"
+import { CameraModal } from "./CameraModal"
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
@@ -30,6 +31,7 @@ export function RegistrationForm({ editId }: { editId?: string }) {
   const [isFetchingDesc, setIsFetchingDesc] = useState(false)
   const [files, setFiles] = useState<File[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isCameraOpen, setIsCameraOpen] = useState(false)
 
   const {
     register,
@@ -360,18 +362,14 @@ export function RegistrationForm({ editId }: { editId?: string }) {
             />
           </label>
 
-          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-muted-foreground/25 rounded-xl hover:bg-muted/50 hover:border-muted-foreground/50 transition-colors cursor-pointer text-muted-foreground hover:text-foreground">
+          <button 
+            type="button"
+            onClick={() => setIsCameraOpen(true)}
+            className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-muted-foreground/25 rounded-xl hover:bg-muted/50 hover:border-muted-foreground/50 transition-colors text-muted-foreground hover:text-foreground">
             <Camera className="h-8 w-8 mb-2" />
-            <span className="text-sm font-medium">Câmera</span>
-            <span className="text-xs mt-1">Tirar Foto ou Gravar</span>
-            <input 
-              type="file" 
-              className="hidden" 
-              accept="image/*,video/*"
-              capture="environment"
-              onChange={handleFileChange}
-            />
-          </label>
+            <span className="text-sm font-medium">Câmera Embutida</span>
+            <span className="text-xs mt-1">Tirar Foto</span>
+          </button>
 
           {files.map((file, idx) => (
             <div key={idx} className="relative flex items-center p-3 h-32 border rounded-xl bg-card border-border overflow-hidden group">
@@ -409,6 +407,12 @@ export function RegistrationForm({ editId }: { editId?: string }) {
           {editId ? "Salvar Alterações" : "Registrar Descarte"}
         </button>
       </div>
+
+      <CameraModal 
+        isOpen={isCameraOpen}
+        onClose={() => setIsCameraOpen(false)}
+        onCapture={(file) => setFiles(prev => [...prev, file])}
+      />
     </form>
   )
 }
