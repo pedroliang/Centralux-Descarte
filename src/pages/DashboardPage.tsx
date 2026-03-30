@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../lib/supabase"
 import { Link } from "react-router-dom"
-import { Loader2, Search, Trash2, Printer, ExternalLink, Edit } from "lucide-react"
+import { Loader2, Search, Trash2, Printer, ExternalLink, Edit, X } from "lucide-react"
 import { format } from "date-fns"
 import { toast } from "sonner"
 
@@ -26,6 +26,7 @@ export function DashboardPage() {
   const [searchBrand, setSearchBrand] = useState("")
   const [startDate, setStartDate] = useState("")
   const [endDate, setEndDate] = useState("")
+  const [selectedMediaSrc, setSelectedMediaSrc] = useState<string | null>(null)
 
   const fetchDiscards = async () => {
     setLoading(true)
@@ -85,6 +86,8 @@ export function DashboardPage() {
   const handlePrint = () => {
     window.print()
   }
+
+  const isVideo = (url: string) => /\.(mp4|webm)$/i.test(url.split('?')[0])
 
   return (
     <div className="space-y-6">
@@ -211,9 +214,12 @@ export function DashboardPage() {
                     <td className="px-6 py-4 text-center print:hidden">
                       <div className="flex items-center justify-center gap-1">
                         {discard.media_urls?.length ? (
-                          <span className="inline-flex items-center justify-center bg-muted text-muted-foreground h-7 px-2 rounded-md text-xs font-medium border">
-                            {discard.media_urls.length} files
-                          </span>
+                          <button 
+                            onClick={() => setSelectedMediaSrc(discard.media_urls![0])}
+                            className="inline-flex items-center justify-center bg-primary/10 text-primary hover:bg-primary/20 h-7 px-2 rounded-md text-xs font-medium border border-primary/20 transition-colors"
+                          >
+                            {discard.media_urls.length} {discard.media_urls.length === 1 ? 'file' : 'files'}
+                          </button>
                         ) : (
                           <span className="text-muted-foreground text-xs">-</span>
                         )}
@@ -262,6 +268,26 @@ export function DashboardPage() {
           }
         }
       `}</style>
+
+      {/* Lightbox / Modal for Media */}
+      {selectedMediaSrc && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200">
+          <button 
+            onClick={() => setSelectedMediaSrc(null)}
+            className="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black text-white rounded-full transition-colors z-[110]"
+          >
+            <X className="h-6 w-6" />
+          </button>
+          
+          <div className="relative max-w-4xl max-h-[90vh] w-full flex justify-center items-center">
+             {isVideo(selectedMediaSrc) ? (
+               <video src={selectedMediaSrc} controls autoPlay className="max-w-full max-h-[90vh] rounded-lg shadow-2xl" />
+             ) : (
+               <img src={selectedMediaSrc} alt="Evidência ampliada" className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" />
+             )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
