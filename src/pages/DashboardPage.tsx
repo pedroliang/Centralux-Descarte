@@ -22,8 +22,7 @@ type Discard = {
 export function DashboardPage() {
   const [discards, setDiscards] = useState<Discard[]>([])
   const [loading, setLoading] = useState(true)
-  const [searchCode, setSearchCode] = useState("")
-  const [searchBrand, setSearchBrand] = useState("")
+  const [searchTerm, setSearchTerm] = useState("")
   const [startDate, setStartDate] = useState("")
   const [endDate, setEndDate] = useState("")
   const [selectedMediaSrc, setSelectedMediaSrc] = useState<string | null>(null)
@@ -32,11 +31,11 @@ export function DashboardPage() {
     setLoading(true)
     let query = supabase.from('descartes').select('*').order('created_at', { ascending: false })
     
-    if (searchCode) {
-      query = query.ilike('product_code', `%${searchCode}%`)
-    }
-    if (searchBrand) {
-      query = query.ilike('brand', `%${searchBrand}%`)
+    if (searchTerm) {
+      const words = searchTerm.split(' ').filter(word => word.trim().length > 0)
+      words.forEach(word => {
+        query = query.or(`product_code.ilike.%${word}%,brand.ilike.%${word}%,lot.ilike.%${word}%,condition.ilike.%${word}%,product_description.ilike.%${word}%,customer_name.ilike.%${word}%`)
+      })
     }
     if (startDate) {
       query = query.gte('date', startDate)
@@ -57,7 +56,7 @@ export function DashboardPage() {
 
   useEffect(() => {
     fetchDiscards()
-  }, [searchCode, searchBrand, startDate, endDate])
+  }, [searchTerm, startDate, endDate])
 
   const handleDelete = async (id: string, mediaUrls: string[] | null) => {
     if (!confirm("Tem certeza que deseja apagar este registro?")) return
@@ -117,21 +116,12 @@ export function DashboardPage() {
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 print:hidden">
-        <div className="relative flex-1">
+        <div className="relative flex-[2]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
-            placeholder="Pesquisar por Código..."
-            value={searchCode}
-            onChange={(e) => setSearchCode(e.target.value)}
-            className="flex h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-          />
-        </div>
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input
-            placeholder="Pesquisar por Marca..."
-            value={searchBrand}
-            onChange={(e) => setSearchBrand(e.target.value)}
+            placeholder="Pesquisar por código, marca, lote, condição..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="flex h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           />
         </div>

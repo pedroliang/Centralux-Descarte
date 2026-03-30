@@ -20,7 +20,7 @@ type Discard = {
 export function PublicViewPage() {
   const [discards, setDiscards] = useState<Discard[]>([])
   const [loading, setLoading] = useState(true)
-  const [searchCode, setSearchCode] = useState("")
+  const [searchTerm, setSearchTerm] = useState("")
   const [startDate, setStartDate] = useState("")
   const [endDate, setEndDate] = useState("")
   const [selectedMediaSrc, setSelectedMediaSrc] = useState<string | null>(null)
@@ -30,8 +30,11 @@ export function PublicViewPage() {
       setLoading(true)
       let query = supabase.from('descartes').select('*').order('created_at', { ascending: false })
       
-      if (searchCode) {
-        query = query.ilike('product_code', `%${searchCode}%`)
+      if (searchTerm) {
+        const words = searchTerm.split(' ').filter(w => w.trim().length > 0)
+        words.forEach(word => {
+          query = query.or(`product_code.ilike.%${word}%,brand.ilike.%${word}%,lot.ilike.%${word}%,condition.ilike.%${word}%,product_description.ilike.%${word}%,customer_name.ilike.%${word}%`)
+        })
       }
       if (startDate) {
         query = query.gte('date', startDate)
@@ -45,7 +48,7 @@ export function PublicViewPage() {
       setLoading(false)
     }
     fetchDiscards()
-  }, [searchCode, startDate, endDate])
+  }, [searchTerm, startDate, endDate])
 
   const isVideo = (url: string) => /\.(mp4|webm)$/i.test(url.split('?')[0])
 
@@ -62,9 +65,9 @@ export function PublicViewPage() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
-            placeholder="Pesquisar por Código..."
-            value={searchCode}
-            onChange={(e) => setSearchCode(e.target.value)}
+            placeholder="Pesquisar por código, marca, lote..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="flex h-10 w-full rounded-full border border-input bg-background/50 backdrop-blur pl-9 pr-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           />
         </div>
