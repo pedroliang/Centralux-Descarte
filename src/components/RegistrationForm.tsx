@@ -84,7 +84,7 @@ export function RegistrationForm({ editId }: { editId?: string }) {
           setValue("lot", data.lot || '')
           setValue("customer_name", data.customer_name || '')
           
-          if (["Boas condições", "Amassado", "Queimado", "Faltando peça"].includes(data.condition)) {
+          if (["Boas condições", "Amassado", "Queimado", "Faltando peça", "Descarte"].includes(data.condition)) {
             setValue("condition", data.condition)
           } else {
             setValue("condition", "Outros")
@@ -321,6 +321,7 @@ export function RegistrationForm({ editId }: { editId?: string }) {
             <option value="Amassado">Amassado</option>
             <option value="Queimado">Queimado</option>
             <option value="Faltando peça">Faltando peça</option>
+            <option value="Descarte">Descarte</option>
             <option value="Outros">Outros</option>
           </select>
           {errors.condition && <p className="text-[0.8rem] font-medium text-destructive">{errors.condition.message}</p>}
