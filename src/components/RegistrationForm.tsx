@@ -44,7 +44,7 @@ export function RegistrationForm({ editId }: { editId?: string }) {
   } = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      date: new Date().toISOString().split('T')[0],
+      date: new Date().toLocaleDateString('en-CA'),
       quantity: 1,
       condition: "",
       brand: "",
@@ -175,7 +175,7 @@ export function RegistrationForm({ editId }: { editId?: string }) {
         brand: finalBrand || null,
         customer_name: data.customer_name || null,
         quantity: data.quantity || 1,
-        date: data.date || new Date().toISOString().split('T')[0],
+        date: data.date || new Date().toLocaleDateString('en-CA'),
       }
 
       if (editId) {

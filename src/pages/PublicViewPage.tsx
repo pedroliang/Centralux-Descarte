@@ -103,7 +103,7 @@ export function PublicViewPage() {
                 <div className="flex justify-between items-start mb-2">
                   <span className="font-bold text-lg text-primary">{discard.product_code}</span>
                   <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
-                    {format(new Date(discard.date), 'dd/MM/yyyy')}
+                    {format(new Date(discard.date + 'T00:00:00'), 'dd/MM/yyyy')}
                   </span>
                 </div>
                 <p className="text-sm font-medium mb-4">{discard.product_description}</p>

@@ -188,7 +188,7 @@ export function DashboardPage() {
                 discards.map((discard) => (
                   <tr key={discard.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {format(new Date(discard.date), 'dd/MM/yyyy')}
+                      {format(new Date(discard.date + 'T00:00:00'), 'dd/MM/yyyy')}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-muted-foreground">
                       {discard.customer_name || '-'}
