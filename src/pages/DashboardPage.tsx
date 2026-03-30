@@ -14,6 +14,7 @@ type Discard = {
   condition: string
   lot: string | null
   brand: string
+  customer_name: string | null
   quantity: number
   media_urls: string[] | null
 }
@@ -23,6 +24,8 @@ export function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [searchCode, setSearchCode] = useState("")
   const [searchBrand, setSearchBrand] = useState("")
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
 
   const fetchDiscards = async () => {
     setLoading(true)
@@ -33,6 +36,12 @@ export function DashboardPage() {
     }
     if (searchBrand) {
       query = query.ilike('brand', `%${searchBrand}%`)
+    }
+    if (startDate) {
+      query = query.gte('date', startDate)
+    }
+    if (endDate) {
+      query = query.lte('date', endDate)
     }
 
     const { data, error } = await query
@@ -47,7 +56,7 @@ export function DashboardPage() {
 
   useEffect(() => {
     fetchDiscards()
-  }, [searchCode, searchBrand])
+  }, [searchCode, searchBrand, startDate, endDate])
 
   const handleDelete = async (id: string, mediaUrls: string[] | null) => {
     if (!confirm("Tem certeza que deseja apagar este registro?")) return
@@ -123,6 +132,23 @@ export function DashboardPage() {
             className="flex h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           />
         </div>
+        <div className="relative flex-[1.5] flex items-center gap-2">
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            title="Data Inicial"
+          />
+          <span className="text-muted-foreground text-sm">até</span>
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            title="Data Final"
+          />
+        </div>
       </div>
 
       <div className="bg-card text-card-foreground rounded-2xl border shadow-sm overflow-hidden">
@@ -131,6 +157,7 @@ export function DashboardPage() {
             <thead className="text-xs text-muted-foreground uppercase bg-muted/50 border-b">
               <tr>
                 <th className="px-6 py-4 font-medium">Data</th>
+                <th className="px-6 py-4 font-medium">Cliente</th>
                 <th className="px-6 py-4 font-medium">Código</th>
                 <th className="px-6 py-4 font-medium">Descrição</th>
                 <th className="px-6 py-4 font-medium">Marca</th>
@@ -143,14 +170,14 @@ export function DashboardPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="px-6 py-12 text-center text-muted-foreground">
+                  <td colSpan={9} className="px-6 py-12 text-center text-muted-foreground">
                     <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2" />
                     Carregando dados...
                   </td>
                 </tr>
               ) : discards.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-6 py-12 text-center text-muted-foreground">
+                  <td colSpan={9} className="px-6 py-12 text-center text-muted-foreground">
                     Nenhum registro encontrado.
                   </td>
                 </tr>
@@ -159,6 +186,9 @@ export function DashboardPage() {
                   <tr key={discard.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       {format(new Date(discard.date), 'dd/MM/yyyy')}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-muted-foreground">
+                      {discard.customer_name || '-'}
                     </td>
                     <td className="px-6 py-4 font-medium whitespace-nowrap">
                       {discard.product_code}

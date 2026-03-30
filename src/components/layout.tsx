@@ -17,7 +17,7 @@ export default function Layout() {
             <nav className="flex items-center gap-4 text-sm font-medium">
               <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">Registrar</Link>
               <Link to="/dashboard" className="text-muted-foreground hover:text-foreground transition-colors">Painel</Link>
-              <Link to="/public" target="_blank" className="text-muted-foreground hover:text-foreground transition-colors">Ver Público</Link>
+              <Link to="/public" className="text-muted-foreground hover:text-foreground transition-colors">Ver Público</Link>
             </nav>
           </div>
           <nav className="flex items-center gap-4">

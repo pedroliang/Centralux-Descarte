@@ -12,6 +12,7 @@ type Discard = {
   condition: string
   lot: string | null
   brand: string
+  customer_name: string | null
   quantity: number
   media_urls: string[] | null
 }
@@ -20,6 +21,8 @@ export function PublicViewPage() {
   const [discards, setDiscards] = useState<Discard[]>([])
   const [loading, setLoading] = useState(true)
   const [searchCode, setSearchCode] = useState("")
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
   const [selectedMediaSrc, setSelectedMediaSrc] = useState<string | null>(null)
 
   useEffect(() => {
@@ -30,13 +33,19 @@ export function PublicViewPage() {
       if (searchCode) {
         query = query.ilike('product_code', `%${searchCode}%`)
       }
+      if (startDate) {
+        query = query.gte('date', startDate)
+      }
+      if (endDate) {
+        query = query.lte('date', endDate)
+      }
 
       const { data } = await query
       setDiscards(data || [])
       setLoading(false)
     }
     fetchDiscards()
-  }, [searchCode])
+  }, [searchCode, startDate, endDate])
 
   const isVideo = (url: string) => /\.(mp4|webm)$/i.test(url.split('?')[0])
 
@@ -49,14 +58,33 @@ export function PublicViewPage() {
         </p>
       </div>
 
-      <div className="max-w-md mx-auto relative mb-8">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <input
-          placeholder="Pesquisar por Código..."
-          value={searchCode}
-          onChange={(e) => setSearchCode(e.target.value)}
-          className="flex h-10 w-full rounded-full border border-input bg-background/50 backdrop-blur pl-9 pr-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-        />
+      <div className="max-w-2xl mx-auto flex flex-col sm:flex-row gap-4 mb-8">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <input
+            placeholder="Pesquisar por Código..."
+            value={searchCode}
+            onChange={(e) => setSearchCode(e.target.value)}
+            className="flex h-10 w-full rounded-full border border-input bg-background/50 backdrop-blur pl-9 pr-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          />
+        </div>
+        <div className="relative flex-1 flex items-center gap-2">
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="flex h-10 w-full rounded-full border border-input bg-background/50 backdrop-blur px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            title="Data Inicial"
+          />
+          <span className="text-muted-foreground text-sm">até</span>
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="flex h-10 w-full rounded-full border border-input bg-background/50 backdrop-blur px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            title="Data Final"
+          />
+        </div>
       </div>
 
       {loading ? (
@@ -81,9 +109,10 @@ export function PublicViewPage() {
                 <p className="text-sm font-medium mb-4">{discard.product_description}</p>
                 <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
                   <div><span className="font-medium text-foreground">Marca:</span> {discard.brand}</div>
+                  <div><span className="font-medium text-foreground">Cliente:</span> {discard.customer_name || '-'}</div>
                   <div><span className="font-medium text-foreground">Lote:</span> {discard.lot || '-'}</div>
                   <div><span className="font-medium text-foreground">Qtd:</span> {discard.quantity}</div>
-                  <div><span className="font-medium text-foreground">Condição:</span> {discard.condition}</div>
+                  <div className="col-span-2"><span className="font-medium text-foreground">Condição:</span> {discard.condition}</div>
                 </div>
               </div>
               

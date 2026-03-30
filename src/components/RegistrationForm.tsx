@@ -23,6 +23,7 @@ const formSchema = z.object({
   brand: z.string().optional(),
   custom_brand: z.string().optional(),
   date: z.string().optional(),
+  customer_name: z.string().optional(),
   quantity: z.coerce.number().min(1, "Quantidade deve ser pelo menos 1").default(1),
 })
 
@@ -46,6 +47,7 @@ export function RegistrationForm({ editId }: { editId?: string }) {
       quantity: 1,
       condition: "",
       brand: "",
+      customer_name: "",
     }
   })
 
@@ -79,8 +81,9 @@ export function RegistrationForm({ editId }: { editId?: string }) {
           setValue("quantity", data.quantity)
           setValue("date", data.date)
           setValue("lot", data.lot || '')
+          setValue("customer_name", data.customer_name || '')
           
-          if (["Amassado", "Queimado", "Faltando peça"].includes(data.condition)) {
+          if (["Boas condições", "Amassado", "Queimado", "Faltando peça"].includes(data.condition)) {
             setValue("condition", data.condition)
           } else {
             setValue("condition", "Outros")
@@ -160,6 +163,7 @@ export function RegistrationForm({ editId }: { editId?: string }) {
         condition: finalCondition || null,
         lot: data.lot || null,
         brand: finalBrand || null,
+        customer_name: data.customer_name || null,
         quantity: data.quantity || 1,
         date: data.date || new Date().toISOString().split('T')[0],
       }
@@ -242,6 +246,15 @@ export function RegistrationForm({ editId }: { editId?: string }) {
           </div>
           {errors.description && <p className="text-[0.8rem] font-medium text-destructive">{errors.description.message}</p>}
         </div>
+
+        <div className="space-y-2 sm:col-span-2">
+          <label className="text-sm font-medium leading-none">Nome do Cliente <span className="text-muted-foreground font-normal">(Opcional)</span></label>
+          <input
+            {...register("customer_name")}
+            placeholder="Ex: João da Silva"
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          />
+        </div>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2">
@@ -288,6 +301,7 @@ export function RegistrationForm({ editId }: { editId?: string }) {
             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <option value="" disabled>Selecione uma condição</option>
+            <option value="Boas condições">Boas condições</option>
             <option value="Amassado">Amassado</option>
             <option value="Queimado">Queimado</option>
             <option value="Faltando peça">Faltando peça</option>
