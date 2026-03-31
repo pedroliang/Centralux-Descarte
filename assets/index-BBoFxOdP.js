@@ -76,60 +76,99 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
             margin: 1cm;
             size: auto;
           }
+          /* Reset total para garantir fundo branco e texto preto */
+          :root {
+            --background: 0 0% 100% !important;
+            --foreground: 0 0% 0% !important;
+            --card: 0 0% 100% !important;
+            --muted: 0 0% 100% !important;
+          }
+          
+          html, body {
+            background-color: #fff !important;
+            color: #000 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+
           body * {
             visibility: hidden;
           }
+
           .print\\:hidden {
             display: none !important;
           }
+
           main, main * {
             visibility: visible;
           }
+
           main {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            margin: 0;
-            padding: 0;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background-color: #fff !important;
           }
-          /* Forçar cores pretas e remover cinzas */
-          h1, p, th, td, span, div {
+
+          /* Forçar cores pretas em todos os elementos de texto */
+          h1, p, th, td, span, div, strong, b {
             color: #000 !important;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
+            background-color: transparent !important;
           }
+
+          .bg-card {
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+          }
+
           .text-muted-foreground {
             color: #000 !important;
           }
+
           .bg-muted\\/50 {
             background-color: transparent !important;
             border-bottom: 2px solid #000 !important;
           }
+
           .border-b {
-            border-bottom: 1px solid #000 !important;
+            border-bottom: 1px solid #777 !important;
           }
+
           /* Ajustar badges de marca para impressão */
           .bg-primary\\/10 {
             background-color: transparent !important;
             border: 1px solid #000 !important;
+            color: #000 !important;
             padding: 2px 6px !important;
+            border-radius: 4px !important;
           }
-          /* Garantir que o código do produto e quantidades fiquem em negrito */
+
           .font-medium, .font-bold {
             font-weight: 700 !important;
           }
+
           table {
             border-collapse: collapse !important;
             width: 100% !important;
+            background-color: #fff !important;
           }
+
           th {
             text-transform: uppercase !important;
             font-weight: 800 !important;
             padding: 12px 6px !important;
+            color: #000 !important;
+            border-bottom: 2px solid #000 !important;
           }
+
           td {
             padding: 10px 6px !important;
+            color: #000 !important;
+            border-bottom: 1px solid #eee !important;
           }
         }
       `}),u&&(0,I.jsxs)(`div`,{className:`fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200`,children:[(0,I.jsx)(`button`,{onClick:()=>d(null),className:`absolute top-4 right-4 p-2 bg-black/50 hover:bg-black text-white rounded-full transition-colors z-[110]`,children:(0,I.jsx)(yr,{className:`h-6 w-6`})}),(0,I.jsx)(`div`,{className:`relative max-w-4xl max-h-[90vh] w-full flex justify-center items-center`,children:h(u)?(0,I.jsx)(`video`,{src:u,controls:!0,autoPlay:!0,className:`max-w-full max-h-[90vh] rounded-lg shadow-2xl`}):(0,I.jsx)(`img`,{src:u,alt:`Evidência ampliada`,className:`max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl`})})]})]})}function Ly(){let[e,t]=(0,x.useState)([]),[n,r]=(0,x.useState)(!0),[i,a]=(0,x.useState)(``),[o,s]=(0,x.useState)(``),[c,l]=(0,x.useState)(``),[u,d]=(0,x.useState)(null);(0,x.useEffect)(()=>{(async()=>{r(!0);let e=bv.from(`descartes`).select(`*`).order(`created_at`,{ascending:!1});o&&(e=e.gte(`date`,o)),c&&(e=e.lte(`date`,c));let{data:n}=await e;t(n||[]),r(!1)})()},[o,c]);let f=e=>/\.(mp4|webm)$/i.test(e.split(`?`)[0]),p=e=>e==null?``:String(e).toLowerCase().normalize(`NFD`).replace(/[\u0300-\u036f]/g,``).replace(/\s+/g,` `).trim(),m=e.filter(e=>{if(!i)return!0;let t=``;try{if(e.date){let n=new Date(e.date+`T00:00:00`);isNaN(n.getTime())||(t=Py(n,`dd/MM/yyyy`))}}catch{console.warn(`Invalid date during search:`,e.date)}let n=p([e.product_code,e.brand,e.lot,e.condition,e.product_description,e.customer_name,e.quantity,t].map(e=>e??``).join(` `));return p(i).split(` `).filter(e=>e.trim().length>0).every(e=>n.includes(e))});return(0,I.jsxs)(`div`,{className:`space-y-6`,children:[(0,I.jsxs)(`div`,{className:`text-center pb-6`,children:[(0,I.jsx)(`h1`,{className:`text-3xl font-bold tracking-tight text-foreground`,children:`Relatório de Descartes`}),(0,I.jsx)(`p`,{className:`text-muted-foreground mt-2`,children:`Visualização pública dos produtos descartados na CentraLux.`})]}),(0,I.jsxs)(`div`,{className:`max-w-2xl mx-auto flex flex-col sm:flex-row gap-4 mb-8`,children:[(0,I.jsxs)(`div`,{className:`relative flex-1`,children:[(0,I.jsx)(hr,{className:`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground`}),(0,I.jsx)(`input`,{placeholder:`Pesquisar por código, descrição, cliente...`,value:i,onChange:e=>a(e.target.value),className:`flex h-10 w-full rounded-full border border-input bg-background/50 backdrop-blur pl-9 pr-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`})]}),(0,I.jsxs)(`div`,{className:`relative flex-1 flex items-center gap-2`,children:[(0,I.jsx)(`input`,{type:`date`,value:o,onChange:e=>s(e.target.value),className:`flex h-10 w-full rounded-full border border-input bg-background/50 backdrop-blur px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`,title:`Data Inicial`}),(0,I.jsx)(`span`,{className:`text-muted-foreground text-sm`,children:`até`}),(0,I.jsx)(`input`,{type:`date`,value:c,onChange:e=>l(e.target.value),className:`flex h-10 w-full rounded-full border border-input bg-background/50 backdrop-blur px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`,title:`Data Final`})]})]}),n?(0,I.jsx)(`div`,{className:`flex justify-center py-12`,children:(0,I.jsx)(ur,{className:`h-8 w-8 animate-spin text-primary`})}):m.length===0?(0,I.jsx)(`div`,{className:`text-center py-12 text-muted-foreground bg-muted/20 rounded-xl border`,children:`Nenhum registro encontrado.`}):(0,I.jsx)(`div`,{className:`grid gap-6 sm:grid-cols-2 lg:grid-cols-3`,children:m.map(e=>(0,I.jsxs)(`div`,{className:`bg-card text-card-foreground rounded-2xl border shadow-sm overflow-hidden flex flex-col transition-all hover:shadow-md`,children:[(0,I.jsxs)(`div`,{className:`p-5 flex-1`,children:[(0,I.jsxs)(`div`,{className:`flex justify-between items-start mb-2`,children:[(0,I.jsx)(`span`,{className:`font-bold text-lg text-primary`,children:e.product_code}),(0,I.jsx)(`span`,{className:`text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full`,children:Py(new Date(e.date+`T00:00:00`),`dd/MM/yyyy`)})]}),(0,I.jsx)(`p`,{className:`text-sm font-medium mb-4`,children:e.product_description}),(0,I.jsxs)(`div`,{className:`grid grid-cols-2 gap-2 text-sm text-muted-foreground`,children:[(0,I.jsxs)(`div`,{children:[(0,I.jsx)(`span`,{className:`font-medium text-foreground`,children:`Marca:`}),` `,e.brand]}),(0,I.jsxs)(`div`,{children:[(0,I.jsx)(`span`,{className:`font-medium text-foreground`,children:`Cliente:`}),` `,e.customer_name||`-`]}),(0,I.jsxs)(`div`,{children:[(0,I.jsx)(`span`,{className:`font-medium text-foreground`,children:`Lote:`}),` `,e.lot||`-`]}),(0,I.jsxs)(`div`,{children:[(0,I.jsx)(`span`,{className:`font-medium text-foreground`,children:`Qtd:`}),` `,e.quantity]}),(0,I.jsxs)(`div`,{className:`col-span-2`,children:[(0,I.jsx)(`span`,{className:`font-medium text-foreground`,children:`Condição:`}),` `,e.condition]})]})]}),e.media_urls&&e.media_urls.length>0&&(0,I.jsxs)(`div`,{className:`bg-muted/30 p-3 border-t`,children:[(0,I.jsxs)(`p`,{className:`text-xs font-semibold mb-2 px-2 text-foreground/80`,children:[`Evidências (`,e.media_urls.length,`)`]}),(0,I.jsx)(`div`,{className:`flex gap-2 overflow-x-auto pb-2 px-2 snap-x`,children:e.media_urls.map((e,t)=>(0,I.jsx)(`button`,{onClick:()=>d(e),className:`relative h-16 w-16 shrink-0 rounded-lg overflow-hidden border border-border/50 hover:opacity-80 transition-opacity snap-center`,children:f(e)?(0,I.jsx)(`video`,{src:e,className:`h-full w-full object-cover`}):(0,I.jsx)(`img`,{src:e,alt:`Evidência ${t+1}`,className:`h-full w-full object-cover`})},t))})]})]},e.id))}),u&&(0,I.jsxs)(`div`,{className:`fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4`,children:[(0,I.jsx)(`button`,{onClick:()=>d(null),className:`absolute top-4 right-4 p-2 bg-black/50 hover:bg-black text-white rounded-full transition-colors`,children:(0,I.jsx)(yr,{className:`h-6 w-6`})}),(0,I.jsx)(`div`,{className:`relative max-w-4xl max-h-[90vh] w-full flex justify-center items-center`,children:f(u)?(0,I.jsx)(`video`,{src:u,controls:!0,autoPlay:!0,className:`max-w-full max-h-[90vh] rounded-lg shadow-2xl`}):(0,I.jsx)(`img`,{src:u,alt:`Evidência ampliada`,className:`max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl`})})]})]})}function Ry(){let{id:e}=ot();return(0,I.jsxs)(`div`,{className:`space-y-6 max-w-3xl mx-auto`,children:[(0,I.jsxs)(`div`,{className:`pb-4 border-b`,children:[(0,I.jsx)(`h1`,{className:`text-3xl font-bold tracking-tight text-foreground`,children:`Editar Descarte`}),(0,I.jsx)(`p`,{className:`text-muted-foreground mt-2`,children:`Edite as informações do descarte registrado.`})]}),(0,I.jsx)(`div`,{className:`bg-card text-card-foreground rounded-2xl border shadow-sm p-6 sm:p-8`,children:(0,I.jsx)(Ev,{editId:e})})]})}(0,Hn.createRoot)(document.getElementById(`root`)).render((0,I.jsx)(x.StrictMode,{children:(0,I.jsxs)(Gn,{defaultTheme:`system`,storageKey:`centralux-theme`,children:[(0,I.jsx)(xn,{children:(0,I.jsx)(Pt,{children:(0,I.jsxs)(Mt,{path:`/`,element:(0,I.jsx)(xr,{}),children:[(0,I.jsx)(Mt,{index:!0,element:(0,I.jsx)(Dv,{})}),(0,I.jsx)(Mt,{path:`dashboard`,element:(0,I.jsx)(Iy,{})}),(0,I.jsx)(Mt,{path:`public`,element:(0,I.jsx)(Ly,{})}),(0,I.jsx)(Mt,{path:`edit/:id`,element:(0,I.jsx)(Ry,{})}),(0,I.jsx)(Mt,{path:`*`,element:(0,I.jsx)(At,{to:`/`,replace:!0})})]})})}),(0,I.jsx)(Hd,{position:`top-right`,richColors:!0})]})}));
