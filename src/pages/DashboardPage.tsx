@@ -277,6 +277,10 @@ export function DashboardPage() {
       
       <style>{`
         @media print {
+          @page {
+            margin: 1cm;
+            size: auto;
+          }
           body * {
             visibility: hidden;
           }
@@ -291,6 +295,46 @@ export function DashboardPage() {
             left: 0;
             top: 0;
             width: 100%;
+            margin: 0;
+            padding: 0;
+          }
+          /* Forçar cores pretas e remover cinzas */
+          h1, p, th, td, span, div {
+            color: #000 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          .text-muted-foreground {
+            color: #000 !important;
+          }
+          .bg-muted\\/50 {
+            background-color: transparent !important;
+            border-bottom: 2px solid #000 !important;
+          }
+          .border-b {
+            border-bottom: 1px solid #000 !important;
+          }
+          /* Ajustar badges de marca para impressão */
+          .bg-primary\\/10 {
+            background-color: transparent !important;
+            border: 1px solid #000 !important;
+            padding: 2px 6px !important;
+          }
+          /* Garantir que o código do produto e quantidades fiquem em negrito */
+          .font-medium, .font-bold {
+            font-weight: 700 !important;
+          }
+          table {
+            border-collapse: collapse !important;
+            width: 100% !important;
+          }
+          th {
+            text-transform: uppercase !important;
+            font-weight: 800 !important;
+            padding: 12px 6px !important;
+          }
+          td {
+            padding: 10px 6px !important;
           }
         }
       `}</style>
