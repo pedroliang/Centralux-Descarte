@@ -82,20 +82,45 @@ export function DashboardPage() {
 
   const isVideo = (url: string) => /\.(mp4|webm)$/i.test(url.split('?')[0])
 
+  const normalizeText = (text: any) => {
+    if (text === null || text === undefined) return "";
+    return String(text)
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  };
+
   const filteredDiscards = discards.filter(discard => {
     if (!searchTerm) return true
-    const searchString = [
+    
+    let dateStr = "";
+    try {
+      if (discard.date) {
+        const d = new Date(discard.date + 'T00:00:00');
+        if (!isNaN(d.getTime())) {
+          dateStr = format(d, 'dd/MM/yyyy');
+        }
+      }
+    } catch (e) {
+      console.warn("Invalid date during search:", discard.date);
+    }
+
+    const searchFields = [
       discard.product_code,
       discard.brand,
-      discard.lot || '',
+      discard.lot,
       discard.condition,
       discard.product_description,
-      discard.customer_name || '',
-      discard.quantity.toString(),
-      discard.date ? format(new Date(discard.date + 'T00:00:00'), 'dd/MM/yyyy') : ''
-    ].join(' ').toLowerCase()
+      discard.customer_name,
+      discard.quantity,
+      dateStr
+    ]
     
-    const searchWords = searchTerm.toLowerCase().split(' ').filter(w => w.trim().length > 0)
+    const searchString = normalizeText(searchFields.map(f => f ?? "").join(' '))
+    const searchWords = normalizeText(searchTerm).split(' ').filter(w => w.trim().length > 0)
+    
     return searchWords.every(word => searchString.includes(word))
   })
 
@@ -130,7 +155,7 @@ export function DashboardPage() {
         <div className="relative flex-[2]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
-            placeholder="Pesquisar por código, marca, lote, condição..."
+            placeholder="Pesquisar por código, descrição, cliente, lote..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="flex h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
