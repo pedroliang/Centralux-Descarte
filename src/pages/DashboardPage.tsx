@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../lib/supabase"
 import { Link } from "react-router-dom"
-import { Loader2, Search, Trash2, Printer, ExternalLink, Edit, X } from "lucide-react"
+import { Loader2, Search, Trash2, Printer, ExternalLink, Edit, X, MessageSquareText } from "lucide-react"
 import { format } from "date-fns"
 import { toast } from "sonner"
 
@@ -17,6 +17,7 @@ type Discard = {
   customer_name: string | null
   quantity: number
   media_urls: string[] | null
+  observacao: string | null
 }
 
 export function DashboardPage() {
@@ -26,6 +27,7 @@ export function DashboardPage() {
   const [startDate, setStartDate] = useState("")
   const [endDate, setEndDate] = useState("")
   const [selectedMediaSrc, setSelectedMediaSrc] = useState<string | null>(null)
+  const [selectedObservacao, setSelectedObservacao] = useState<string | null>(null)
 
   const fetchDiscards = async () => {
     setLoading(true)
@@ -139,7 +141,7 @@ export function DashboardPage() {
             className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 transition-colors"
           >
             <ExternalLink className="h-4 w-4 mr-2" />
-            Link Público
+            Relatório
           </button>
           <button
             onClick={handlePrint}
@@ -192,6 +194,7 @@ export function DashboardPage() {
                 <th className="px-6 py-4 font-medium">Marca</th>
                 <th className="px-6 py-4 font-medium">Condição</th>
                 <th className="px-6 py-4 font-medium text-center">Qtd</th>
+                <th className="px-6 py-4 font-medium text-center print:hidden">Obs.</th>
                 <th className="px-6 py-4 font-medium text-center print:hidden">Mídia</th>
                 <th className="px-6 py-4 font-medium text-right print:hidden">Ações</th>
               </tr>
@@ -238,6 +241,19 @@ export function DashboardPage() {
                       {discard.quantity}
                     </td>
                     <td className="px-6 py-4 text-center print:hidden">
+                      {discard.observacao ? (
+                        <button
+                          onClick={() => setSelectedObservacao(discard.observacao)}
+                          className="inline-flex items-center justify-center p-1.5 rounded-md text-amber-500 hover:bg-amber-500/10 transition-colors"
+                          title="Ver Observação"
+                        >
+                          <MessageSquareText className="h-4 w-4" />
+                        </button>
+                      ) : (
+                        <span className="text-muted-foreground text-xs">-</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-center print:hidden">
                       <div className="flex items-center justify-center gap-1">
                         {discard.media_urls?.length ? (
                           <button 
@@ -281,60 +297,99 @@ export function DashboardPage() {
             margin: 1cm;
             size: auto;
           }
+          /* Reset total para garantir fundo branco e texto preto */
+          :root {
+            --background: 0 0% 100% !important;
+            --foreground: 0 0% 0% !important;
+            --card: 0 0% 100% !important;
+            --muted: 0 0% 100% !important;
+          }
+          
+          html, body {
+            background-color: #fff !important;
+            color: #000 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+
           body * {
             visibility: hidden;
           }
+
           .print\\:hidden {
             display: none !important;
           }
+
           main, main * {
             visibility: visible;
           }
+
           main {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            margin: 0;
-            padding: 0;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background-color: #fff !important;
           }
-          /* Forçar cores pretas e remover cinzas */
-          h1, p, th, td, span, div {
+
+          /* Forçar cores pretas em todos os elementos de texto */
+          h1, p, th, td, span, div, strong, b {
             color: #000 !important;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
+            background-color: transparent !important;
           }
+
+          .bg-card {
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+          }
+
           .text-muted-foreground {
             color: #000 !important;
           }
+
           .bg-muted\\/50 {
             background-color: transparent !important;
             border-bottom: 2px solid #000 !important;
           }
+
           .border-b {
-            border-bottom: 1px solid #000 !important;
+            border-bottom: 1px solid #777 !important;
           }
+
           /* Ajustar badges de marca para impressão */
           .bg-primary\\/10 {
             background-color: transparent !important;
             border: 1px solid #000 !important;
+            color: #000 !important;
             padding: 2px 6px !important;
+            border-radius: 4px !important;
           }
-          /* Garantir que o código do produto e quantidades fiquem em negrito */
+
           .font-medium, .font-bold {
             font-weight: 700 !important;
           }
+
           table {
             border-collapse: collapse !important;
             width: 100% !important;
+            background-color: #fff !important;
           }
+
           th {
             text-transform: uppercase !important;
             font-weight: 800 !important;
             padding: 12px 6px !important;
+            color: #000 !important;
+            border-bottom: 2px solid #000 !important;
           }
+
           td {
             padding: 10px 6px !important;
+            color: #000 !important;
+            border-bottom: 1px solid #eee !important;
           }
         }
       `}</style>
@@ -355,6 +410,35 @@ export function DashboardPage() {
              ) : (
                <img src={selectedMediaSrc} alt="Evidência ampliada" className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" />
              )}
+          </div>
+        </div>
+      )}
+
+      {/* Observation Popup Modal */}
+      {selectedObservacao && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 animate-in fade-in duration-200"
+          onClick={() => setSelectedObservacao(null)}
+        >
+          <div
+            className="relative bg-card border rounded-2xl shadow-2xl max-w-md w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-full bg-amber-500/10">
+                <MessageSquareText className="h-5 w-5 text-amber-500" />
+              </div>
+              <h3 className="font-semibold text-lg">Observação</h3>
+              <button
+                onClick={() => setSelectedObservacao(null)}
+                className="ml-auto p-1.5 rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap bg-muted/40 rounded-lg px-4 py-3 border">
+              {selectedObservacao}
+            </p>
           </div>
         </div>
       )}

@@ -24,6 +24,7 @@ const formSchema = z.object({
   custom_brand: z.string().optional(),
   date: z.string().optional(),
   customer_name: z.string().optional(),
+  observacao: z.string().optional(),
   quantity: z.coerce.number().min(1, "Quantidade deve ser pelo menos 1").default(1),
 })
 
@@ -49,6 +50,7 @@ export function RegistrationForm({ editId }: { editId?: string }) {
       condition: "",
       brand: "",
       customer_name: "",
+      observacao: "",
     }
   })
 
@@ -83,6 +85,7 @@ export function RegistrationForm({ editId }: { editId?: string }) {
           setValue("date", data.date)
           setValue("lot", data.lot || '')
           setValue("customer_name", data.customer_name || '')
+          setValue("observacao", data.observacao || '')
           
           if (["Boas condições", "Amassado", "Queimado", "Faltando peça", "Descarte"].includes(data.condition)) {
             setValue("condition", data.condition)
@@ -174,6 +177,7 @@ export function RegistrationForm({ editId }: { editId?: string }) {
         lot: data.lot || null,
         brand: finalBrand || null,
         customer_name: data.customer_name || null,
+        observacao: data.observacao || null,
         quantity: data.quantity || 1,
         date: data.date || new Date().toLocaleDateString('en-CA'),
       }
@@ -369,6 +373,17 @@ export function RegistrationForm({ editId }: { editId?: string }) {
             {...register("lot")}
             placeholder="Opcional"
             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          />
+        </div>
+
+        {/* Observação */}
+        <div className="space-y-2 sm:col-span-2">
+          <label className="text-sm font-medium leading-none">Observação <span className="text-muted-foreground font-normal">(Opcional)</span></label>
+          <textarea
+            {...register("observacao")}
+            placeholder="Alguma observação adicional sobre este descarte..."
+            rows={3}
+            className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
           />
         </div>
       </div>

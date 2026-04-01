@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../lib/supabase"
-import { Loader2, Search, X } from "lucide-react"
+import { Loader2, Search, X, MessageSquareText } from "lucide-react"
 import { format } from "date-fns"
 
 type Discard = {
@@ -15,6 +15,7 @@ type Discard = {
   customer_name: string | null
   quantity: number
   media_urls: string[] | null
+  observacao: string | null
 }
 
 export function PublicViewPage() {
@@ -24,6 +25,7 @@ export function PublicViewPage() {
   const [startDate, setStartDate] = useState("")
   const [endDate, setEndDate] = useState("")
   const [selectedMediaSrc, setSelectedMediaSrc] = useState<string | null>(null)
+  const [selectedObservacao, setSelectedObservacao] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchDiscards = async () => {
@@ -152,6 +154,17 @@ export function PublicViewPage() {
                   <div><span className="font-medium text-foreground">Lote:</span> {discard.lot || '-'}</div>
                   <div><span className="font-medium text-foreground">Qtd:</span> {discard.quantity}</div>
                   <div className="col-span-2"><span className="font-medium text-foreground">Condição:</span> {discard.condition}</div>
+                  {discard.observacao && (
+                    <div className="col-span-2 pt-1">
+                      <button
+                        onClick={() => setSelectedObservacao(discard.observacao)}
+                        className="inline-flex items-center gap-1.5 text-amber-500 hover:text-amber-600 text-xs font-medium transition-colors"
+                      >
+                        <MessageSquareText className="h-3.5 w-3.5" />
+                        Ver Observação
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
               
@@ -196,6 +209,35 @@ export function PublicViewPage() {
              ) : (
                <img src={selectedMediaSrc} alt="Evidência ampliada" className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" />
              )}
+          </div>
+        </div>
+      )}
+
+      {/* Observation Popup Modal */}
+      {selectedObservacao && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4"
+          onClick={() => setSelectedObservacao(null)}
+        >
+          <div
+            className="relative bg-card border rounded-2xl shadow-2xl max-w-md w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-full bg-amber-500/10">
+                <MessageSquareText className="h-5 w-5 text-amber-500" />
+              </div>
+              <h3 className="font-semibold text-lg">Observação</h3>
+              <button
+                onClick={() => setSelectedObservacao(null)}
+                className="ml-auto p-1.5 rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap bg-muted/40 rounded-lg px-4 py-3 border">
+              {selectedObservacao}
+            </p>
           </div>
         </div>
       )}
