@@ -5,6 +5,7 @@ import { format } from "date-fns"
 
 type Discard = {
   id: string
+  seq_id: number
   created_at: string
   date: string
   product_code: string
@@ -30,17 +31,27 @@ export function PublicViewPage() {
   useEffect(() => {
     const fetchDiscards = async () => {
       setLoading(true)
-      let query = supabase.from('descartes').select('*').order('created_at', { ascending: false })
-      
-      if (startDate) {
-        query = query.gte('date', startDate)
-      }
-      if (endDate) {
-        query = query.lte('date', endDate)
-      }
+      // Busca em ordem ascendente para atribuir IDs sequenciais
+      let query = supabase.from('descartes').select('*').order('created_at', { ascending: true })
 
       const { data } = await query
-      setDiscards(data || [])
+
+      // Atribui IDs sequenciais baseados na ordem de criação (mais antigo = #1)
+      const withSeqIds = (data || []).map((item, index) => ({
+        ...item,
+        seq_id: index + 1,
+      }))
+
+      // Filtra por data (se especificado) e reverte para exibir do mais recente ao mais antigo
+      let filtered = withSeqIds
+      if (startDate) {
+        filtered = filtered.filter(d => d.date >= startDate)
+      }
+      if (endDate) {
+        filtered = filtered.filter(d => d.date <= endDate)
+      }
+
+      setDiscards([...filtered].reverse())
       setLoading(false)
     }
     fetchDiscards()
@@ -74,6 +85,7 @@ export function PublicViewPage() {
     }
 
     const searchFields = [
+      String(discard.seq_id),      // Pesquisa por ID (#1, #2 ...)
       discard.product_code,
       discard.brand,
       discard.lot,
@@ -103,7 +115,7 @@ export function PublicViewPage() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
-            placeholder="Pesquisar por código, descrição, cliente..."
+            placeholder="Pesquisar por ID, código, descrição, cliente..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="flex h-10 w-full rounded-full border border-input bg-background/50 backdrop-blur pl-9 pr-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -141,9 +153,12 @@ export function PublicViewPage() {
           {filteredDiscards.map(discard => (
             <div key={discard.id} className="bg-card text-card-foreground rounded-2xl border shadow-sm overflow-hidden flex flex-col transition-all hover:shadow-md">
               <div className="p-5 flex-1">
-                <div className="flex justify-between items-start mb-2">
-                  <span className="font-bold text-lg text-primary">{discard.product_code}</span>
-                  <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs font-semibold text-muted-foreground">ID #{discard.seq_id}</span>
+                    <span className="font-bold text-lg text-primary">{discard.product_code}</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full whitespace-nowrap">
                     {format(new Date(discard.date + 'T00:00:00'), 'dd/MM/yyyy')}
                   </span>
                 </div>
@@ -206,9 +221,9 @@ export function PublicViewPage() {
           <div className="relative max-w-4xl max-h-[90vh] w-full flex justify-center items-center">
              {isVideo(selectedMediaSrc) ? (
                <video src={selectedMediaSrc} controls autoPlay className="max-w-full max-h-[90vh] rounded-lg shadow-2xl" />
-             ) : (
-               <img src={selectedMediaSrc} alt="Evidência ampliada" className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" />
-             )}
+              ) : (
+                <img src={selectedMediaSrc} alt="Evidência ampliada" className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" />
+              )}
           </div>
         </div>
       )}
