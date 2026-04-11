@@ -133,32 +133,13 @@ export function DashboardPage() {
         row.alignment = { vertical: 'middle' };
 
         if (discard.media_urls && discard.media_urls.length > 0) {
-          row.height = 50; 
-          const imgUrl = discard.media_urls[0];
-          
-          if (!isVideo(imgUrl)) {
-            try {
-              const response = await fetch(imgUrl);
-              const blob = await response.blob();
-              const arrayBuffer = await blob.arrayBuffer();
-              
-              let extension = 'jpeg';
-              if (blob.type === 'image/png' || imgUrl.toLowerCase().endsWith('.png')) extension = 'png';
-              
-              const imageId = workbook.addImage({
-                buffer: arrayBuffer,
-                extension: extension as 'jpeg' | 'png' | 'gif',
-              });
-              
-              worksheet.addImage(imageId, {
-                tl: { col: 10, row: row.number - 1 + 0.1 }, 
-                ext: { width: 56, height: 56 },
-                editAs: 'oneCell',
-              });
-            } catch (e) {
-              console.warn("Could not load image for Excel:", imgUrl);
-            }
-          }
+          const cell = row.getCell('imagem');
+          cell.value = {
+            text: discard.media_urls.length > 1 ? `Ver Fotos (${discard.media_urls.length})` : 'Ver Foto',
+            hyperlink: discard.media_urls[0],
+            tooltip: 'Clique para abrir no navegador'
+          };
+          cell.font = { color: { argb: 'FF0000FF' }, underline: true };
         }
       }
 
