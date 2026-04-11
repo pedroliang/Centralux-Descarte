@@ -147,7 +147,7 @@ export function DashboardPage() {
               
               const imageId = workbook.addImage({
                 buffer: arrayBuffer,
-                extension: extension as ExcelJS.ImageExtension,
+                extension: extension as 'jpeg' | 'png' | 'gif',
               });
               
               worksheet.addImage(imageId, {
