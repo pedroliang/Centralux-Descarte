@@ -92,6 +92,7 @@ export function DashboardPage() {
       worksheet.columns = [
         { header: "ID", key: "id", width: 8 },
         { header: "Código", key: "codigo", width: 12 },
+        { header: "Qtd", key: "quantidade", width: 8 },
         { header: "Descrição", key: "descricao", width: 40 },
         { header: "Lote", key: "lote", width: 15 },
         { header: "Marca", key: "marca", width: 15 },
@@ -99,7 +100,6 @@ export function DashboardPage() {
         { header: "Cliente", key: "cliente", width: 25 },
         { header: "Obs", key: "obs", width: 30 },
         { header: "Data", key: "data", width: 15 },
-        { header: "Qtd", key: "quantidade", width: 8 },
         { header: "Imagem", key: "imagem", width: 12 }
       ];
 
@@ -291,8 +291,8 @@ export function DashboardPage() {
               <tr>
                 <th className="px-4 py-4 font-medium w-12">#</th>
                 <th className="px-4 py-4 font-medium">Código</th>
-                <th className="px-4 py-4 font-medium">Descrição</th>
                 <th className="px-4 py-4 font-medium text-center">Qtd</th>
+                <th className="px-4 py-4 font-medium">Descrição</th>
                 <th className="px-4 py-4 font-medium">Marca</th>
                 <th className="px-4 py-4 font-medium">Obs</th>
                 <th className="px-4 py-4 font-medium">Data</th>
@@ -327,17 +327,17 @@ export function DashboardPage() {
                       {discard.product_code}
                     </td>
 
+                    {/* Qtd */}
+                    <td className="px-4 py-4 text-center font-medium">
+                      {discard.quantity}
+                    </td>
+
                     {/* Descrição */}
                     <td className="px-4 py-4 min-w-[200px]">
                       {discard.product_description}
                       {discard.lot && (
                         <p className="text-xs text-muted-foreground mt-1">Lote: {discard.lot}</p>
                       )}
-                    </td>
-
-                    {/* Qtd */}
-                    <td className="px-4 py-4 text-center font-medium">
-                      {discard.quantity}
                     </td>
 
                     {/* Marca */}
