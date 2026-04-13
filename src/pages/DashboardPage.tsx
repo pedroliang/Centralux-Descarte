@@ -292,6 +292,7 @@ export function DashboardPage() {
                 <th className="px-4 py-4 font-medium w-12">#</th>
                 <th className="px-4 py-4 font-medium">Código</th>
                 <th className="px-4 py-4 font-medium">Descrição</th>
+                <th className="px-4 py-4 font-medium text-center">Qtd</th>
                 <th className="px-4 py-4 font-medium">Marca</th>
                 <th className="px-4 py-4 font-medium">Obs</th>
                 <th className="px-4 py-4 font-medium">Data</th>
@@ -302,14 +303,14 @@ export function DashboardPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="px-6 py-12 text-center text-muted-foreground">
+                  <td colSpan={9} className="px-6 py-12 text-center text-muted-foreground">
                     <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2" />
                     Carregando dados...
                   </td>
                 </tr>
               ) : filteredDiscards.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-6 py-12 text-center text-muted-foreground">
+                  <td colSpan={9} className="px-6 py-12 text-center text-muted-foreground">
                     Nenhum registro encontrado.
                   </td>
                 </tr>
@@ -332,6 +333,11 @@ export function DashboardPage() {
                       {discard.lot && (
                         <p className="text-xs text-muted-foreground mt-1">Lote: {discard.lot}</p>
                       )}
+                    </td>
+
+                    {/* Qtd */}
+                    <td className="px-4 py-4 text-center font-medium">
+                      {discard.quantity}
                     </td>
 
                     {/* Marca */}
